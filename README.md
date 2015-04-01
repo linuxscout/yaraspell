@@ -1,6 +1,9 @@
 YaraSpell is an arabic spell checker designed to be embeded on applications
 Yaraspell is open source
+
+
 It's a simple spellechecker which will be implemented in different programming languages to allow developpers to integrate it on their applications
+
 مدقق اليراع مدقق عربي مفتوح المصدر مصمم ليكون مدمجا في التطبيقات وعلى رأسها الوب
 ه مدقق مبسّط سيبرمج بلغات مختلفة ليتيح للمطورين تضمين خدمة التدقيق الإملائي في تطبيقاتهم المختلفة
 
@@ -8,8 +11,8 @@ It's a simple spellechecker which will be implemented in different programming l
 1- قسم القاموس: 
 =================
 القاموس مكون من قاعدة بيانات sql  مكونة من جدول أساسين
-أ- جدول الزوائد affix يتكون كل مدخل من معلومات هي الزائدة affix وعلامتها flag وتكرار الزائدة stats
-ب- جدول الكلمات words: يتكون من مدخلين هما الجذع الأصلي stem وهو كلمة أو جزء من كلمة، والعلامات المقبولة للجذع flags وهي تمثل كل الزوائد التي تلتصق بالجذع
+* أ- جدول الزوائد affix يتكون كل مدخل من معلومات هي الزائدة affix وعلامتها flag وتكرار الزائدة stats
+* ب- جدول الكلمات words: يتكون من مدخلين هما الجذع الأصلي stem وهو كلمة أو جزء من كلمة، والعلامات المقبولة للجذع flags وهي تمثل كل الزوائد التي تلتصق بالجذع
 2- قسم التدقيق:
 ================
 آلية التدقيق
@@ -30,6 +33,7 @@ It's a simple spellechecker which will be implemented in different programming l
 
 بنية المجلدات
 ================
+```shell
 .
 └── yaraspell           The library
     ├── spelldb.py      database class for spellchecker
@@ -64,4 +68,4 @@ It's a simple spellechecker which will be implemented in different programming l
 ├── tests 
 │   └── output  
 
-
+```
