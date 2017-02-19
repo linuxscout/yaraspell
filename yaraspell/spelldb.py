@@ -19,7 +19,8 @@ sys.path.append("../lib")
 if __name__  ==  '__main__':
   sys.path.append('../')  
 import sqlite3 as sqlite
-FILE_DB_SPELL = u"../data/spellcheck.sqlite"
+FILE_DB_SPELL = os.path.join(os.path.dirname(sys.argv[0]), u"data/spellcheck.sqlite")
+#FILE_DB_SPELL =  u"data/spellcheck.sqlite"
 import pyarabic.araby as araby
 
 class spellDictionary:
@@ -65,6 +66,7 @@ class spellDictionary:
         else:
             print u" ".join(["Inexistant File", self.file_path, " current dir ",
              os.curdir]).encode('utf8')
+            sys.exit()
     def __del__(self):
         """
         Delete instance and close database connection
@@ -104,15 +106,17 @@ class spellDictionary:
             for row in   self.cursor:
                    self.costumdict.append(row["word"] )
 
-    def lookup(self, word, stem, affix):
+    def lookup(self, word, stem, affix, procletic):
         """
         look up for word in the dictionary
         @param word: given word.
         @type word: unicode.
         @param stem: the stemmed word.
         @type stem: unicode.
-        @param affix: the stemmed word.
-        @type affix: unicode.       
+        @param affix: the affix =prefix-suffix.
+        @type affix: unicode.
+        @param procletic: the procletic as WAW or FEH.
+        @type procletic: unicode. 
         @return: True if exists.
         @rtype: Boolean.
         """
@@ -128,6 +132,7 @@ class spellDictionary:
         # the affix dict is not loaded, we load it 
         # if the affix dict is loaded, look up for the input affix in the dict
         flag = self.affixdict.get(affix, "")
+        pro_flag = self.affixdict.get(affix, "")
         #print (u"flag '%s' '%s' '%s'" %(flag, affix, stem )).encode('utf8')
         if not flag:
             return False
@@ -151,7 +156,15 @@ class spellDictionary:
                     self.stemdict["stem"] = [] # stem doesn't exist
                     return False 
                 # extract flags 
-                flags = itemlist[0]["flags"].split(";")
+                reducedflags = itemlist[0]["flags"].split(";")
+                #~ flags = []
+                #~ for fl in reducedflags:
+                    #~ if len(fl.split("-")) == 2:
+                        #~ for x in [fl[0][:-1]+chr(i) for i in range(ord(fl[0]),ord(fl[1]))]:
+                            #~ flags.append(x)
+                    #~ else:
+                        #~ flags.append(fl)
+                flags= reducedflags
                 # save data in stemdict to speed up future lookup
                 self.stemdict["stem"] = flags
             if flag in flags:
