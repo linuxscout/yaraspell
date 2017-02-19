@@ -30,11 +30,11 @@ It's a simple spellechecker which will be implemented in different programming l
 
 بنية المجلدات
 ================
-.
-└── yaraspell           The library
-    ├── spelldb.py      database class for spellchecker
-    ├── spelldict.py    class for spellcheker
-    └── spelltools.py   tools and functions used by spelldict
+.```
+├── yaraspell           The library
+│   ├── spelldb.py      database class for spellchecker
+│   ├── spelldict.py    class for spellcheker
+│   └── spelltools.py   tools and functions used by spelldict
 ├── data
 │   └── spellcheck.sqlite   The database file in salite format
 ├── build_dict              scripts used to construct database from wordlist
@@ -61,7 +61,7 @@ It's a simple spellechecker which will be implemented in different programming l
 │       ├── stem_const.py   basic constants used in stemming like letters
 │       ├── stemming.py     basic functions used to stem words
 │       └── others...       others files are not used
-├── tests 
-│   └── output  
+└── tests 
+    └── output  
 
-
+```

@@ -340,25 +340,227 @@ def normalize(word):
         new_word.append(LETTER_MAP.get(c,c))
     return u"".join(new_word)
 
-        
+
+
+"""
+    Arabic spell checker distance
+"""
+"""
+TRY	ًٍذضصثقفغعهخحجدطكمنتالبيسشظزوةىرؤءئأإآ
+KEY ضصثقفغعهخحجد¦شسيبلاتنمكط¦ئءؤرﻻىةوزظ¦ضشئ¦صسء¦ثيؤ¦قبر¦فلﻻ¦غاى¦عتة¦هنو¦خمز¦حكظ¦جط
+
+MAP 16
+MAP ضص
+MAP طظ
+MAP ضظ
+MAP فق
+MAP غع
+MAP خحج
+MAP اأإآ
+MAP أءؤئ
+MAP ةه
+MAP ةت
+MAP يى
+MAP ثت
+MAP زر
+MAP دذ
+MAP ظز
+MAP زذ
+
+REP  80
+REP ^إست است
+REP إ ا
+REP اا ا_ا
+REP ى$ ي
+REP ض ظ
+REP ظ ض
+REP ه$ ة
+"""
+import sys
+sys.path.append('../');
+sys.path.append('../ghalatawi');
+import re
+import pyarabic.araby as araby
+
+LETTER_MAP={
+araby.ALEF_HAMZA_BELOW :u"a",
+araby.ALEF:u"a",
+araby.ALEF_HAMZA_ABOVE:u"a",
+araby.ALEF_MADDA:u"a",
+
+araby.HAMZA :u"e",
+araby.WAW_HAMZA:u"e",
+araby.YEH_HAMZA:u"e",
+
+araby.ZAH:u"d",
+araby.DAD:u"d",
+
+araby.DAL:u"c",
+araby.THAL:u"c",
+
+araby.TEH_MARBUTA:u"t",
+araby.TEH:u"t",
+
+araby.TEH_MARBUTA:u"t",
+araby.HEH:u"t",
+
+
+araby.ALEF_MAKSURA:u"y",
+araby.YEH:u"y",
+}
+LIKEHOOD ={
+# phonetic
+"phone":[
+u"ظض",
+u"ضظ",
+#u"تة",
+u"أا",
+u"ءأ",
+u"ةت",
+u"أآ",
+u"إآ",
+u"اآ",
+u"أإ",
+u"اإ",
+u"اأ",
+u"ؤئ",
+u"ءئ",
+u"أئ",
+u"ءؤ",
+u"أؤ",
+u"أء",
+u"ظز",
+u"زذ"],
+
+#graphic
+'graph':[
+u"شس",
+u"ضص",
+u"ضص",
+u"طظ",
+u"فق"
+u"غع",
+u"ةه",
+u"يى",
+u"ثت",
+u"زر",
+u"دذ",
+u"حج",
+u"خج",
+u"خح",
+], 
+#keyboard
+"key":[
+u"ضش", u"شئ",
+u"صس", u"سء",
+u"ثي",u"يؤ",
+u"قب", u"بر",
+u"فل", u"لﻻ",
+u"غا", u"اى",
+u"عت", u"تة",
+u"هن", u"نو",
+u"خم", u"مز",
+u"حك", u"كظ",
+u"جط",
+u'ضص',
+u'صث',
+u'ثق',
+u'قف',
+u'فغ',
+u'غع',
+u'عه',
+u'هخ',
+u'خح',
+u'حج',
+u'جد',
+
+u'شس',
+u'سي',
+u'يب',
+u'بل',
+u'لا',
+u'ات',
+u'تن',
+u'نم',
+u'مك',
+u'كط',
+
+
+u'ئء',
+u'ءؤ',
+u'ؤر',
+u'رﻻ',
+u'ﻻى',
+u'ىة',
+u'ةو',
+u'وز',
+u'زظ',
+]
+}
+def find_bigrams(input_list):
+  bigram_list = []
+  for i in range(len(input_list)-1):
+      bigram_list.append((input_list[i], input_list[i+1]))
+  return bigram_list
+def normalize(word):
+    new_word =[]
+    for c in word:
+        new_word.append(LETTER_MAP.get(c,c))
+    return u"".join(new_word)
+def like(c1, c2, mode = "phone"):
+    """
+    test likehood between two letters
+    """
+    c1c2 = "".join([c1,c2])
+    c2c1 = "".join([c2,c1])
+    return (c1c2 in LIKEHOOD[mode]) or (c2c1 in LIKEHOOD[mode]) 
+KEYBOARD_DISTANCE  = 3
+PHONETIC_DISTANCE  = 1
+GRAPHIC_DISTANCE  = 2
+REPLACE_DISTANCE = 4
+def phonetic_distance(word1, word2):
+    """
+    calculate distan between two words
+    """
+    if len(word1) != len(word2):
+        return min(len(word1), len(word2)) 
+    else:
+        phono_distance = 0
+        for c,d in zip(word1, word2):
+            if like(c,d, "phone") :
+                phono_distance += PHONETIC_DISTANCE
+            elif like(c,d, "graph") :
+                phono_distance += GRAPHIC_DISTANCE
+            elif like(c,d, "key") :
+                phono_distance += KEYBOARD_DISTANCE
+            elif c != d :
+                phono_distance += REPLACE_DISTANCE
+    return phono_distance               
+                
+            
 def mainly():
     """
     main test
     """
     words =u"""ضلام ألام ضلال لام ظلام ضام غلام إلام نلام هلام ضخام سلام ملام ضلا ضمام تلام علام يلام ضلان كلام ضلتم""".split(" ")
-
+    tests = u"""إنتظار	انتظار
+الإستعمال	الاستعمال
+الضلام	الصلام, الغلام, العلام, الحلام, الجلام, التلام, البلام, السلام, الظلام, الإلام, الآلام, الضمام, الضلال
+يستخدمو	مستخدمو, يستخدمه, يستخدمك, يستخدمن
+شلام	صلام, غلام, علام, حلام, جلام, تلام, سلام, ظلام, ألام, إلام, آلام, شهام, شمام, شيام, شلجم, شلتم, شلاق, شلاف, شلاه, شلاك, شلال
+"""
     source = u"ضلام"
     normsource = normalize(source)
     normlist = [normalize(word) for word in words]
     for word in words:
         print u"\t".join([word, normalize(word)]).encode("utf8")
+    words_dist = [(x, phonetic_distance(source,x)) for x in words]
+    for word in words:
+        print u"\t".join([word, str(phonetic_distance(source,word))]).encode("utf8")
+    condidates = sorted(words, key=lambda x: phonetic_distance(source,x))
+    print "-- ordred by phonetic ------------- "
+    print u"\t".join(condidates)
     condidates = filter(lambda w: normalize(w) == normsource, words)
     print "condidates", u"\t".join(condidates).encode('utf8')
-    editlist =  edits1(source)
-    print "len(editlist)", len(editlist)
-    validwords = [word for word in editlist if araby.is_arabicword(word)]
-    print "len(validwords)", len(validwords)
-    print u"\n".join(editlist).encode('utf8')
-    
 if __name__ == "__main__":
     mainly()
