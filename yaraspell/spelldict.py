@@ -1,5 +1,6 @@
 #!/usr/bin/python 
 # -*- coding: utf-8 -*-
+
 # Name:        spelltools
 # Purpose:     functions and tools for Arabic spellchecker
 # Author:      Taha Zerrouki (taha.zerrouki[at]gmail.com) 
@@ -69,13 +70,19 @@ class spelldict:
             affix = u"-".join([self.stemmer.get_prefix(), self.stemmer.get_suffix()])
             # lookup in the database
             test = self.database.lookup(word, stem, affix)
+            # print test, ":", word, stem, affix
             self.worddict[word] = test
         return test
         
 
     def known_edits2(self, word):
-
-        return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if self.lookup(e2))
+        #
+        words = set(e2 for e1 in edits1(word) for e2 in edits1(e1) if self.lookup(e2))
+        v = set()
+        for c in words:
+            if(spelltools.is_valid(c)):
+                v.add(c)
+        return words
 
     def known(self, words):
         """
@@ -99,11 +106,11 @@ class spelldict:
         @rtype: list of unicode
         """
         candidates = self.known([word])
-        if not candidates:
-            candidates = self.known(edits1(word))
-        #ToDo: implement the second error edits
         #if not candidates:
-            #candidates =  self.known_edits2(word)
+        #    candidates = self.known(edits1(word))
+        #ToDo: implement the second error edits
+        if not candidates:
+            candidates =  self.known_edits2(word)
         if not candidates:
             candidates = [word]
 
@@ -153,23 +160,26 @@ def mainly():
 
     print "affix dict len", len(speller.database.affixdict)
     print "word dict len", len(speller.database.stemdict)
-    words =u""" أأجمعكما سلام يكتبون سلامتكمونا سلامتك الاسلامية داعش إستعمال ضلام علاقت صوة""".split(" ")
-    words = u"""هذا احد الشباب الجزائري من مدينة بسكرة دائرة زريبة الوادي اسمه نور الدين شريط تعرض لصعقة كهربائية اثناء اداء عمله نجى منها من الموت المحقق الا انه بتر كلتى يداه.
-الاخ نور الدين لا يريد الا اجراء عملية في الخارج ولكن التكاليف العملية قدرت بمليار سنتيم وهو من عائلة ميسورة الحال هو الان ينتضر الاعانة من الله اولا ثم من اخوانه الجزائريين.
-لمزيد من المعلومات تجدونها في الصورة ادناه ان الله لا يضيع اجر المحسنين الخبوزية""".split(" ")
+    # words =u""" أأجمعكما سلام يكتبون سلامتكمونا سلامتك الاسلامية داعش إستعمال ضلام علاقت صوة""".split(" ")
+    words =u"""عزيزي أحمد كيف الحال  أرجو أن تكون بحير انمنى ان تستطيع ارسال الميلع المطلوب بأصرع وقت ممكن  مع الجكر الجزيل""".split(" ")
+
+    # words = u"""هذا احد الشباب الجزائري من مدينة بسكرة دائرة زريبة الوادي اسمه نور الدين شريط تعرض لصعقة كهربائية اثناء اداء عمله نجى منها من الموت المحقق الا انه بتر كلتى يداه الاخ نور الدين لا يريد الا اجراء عملية في الخارج ولكن التكاليف العملية قدرت بمليار سنتيم وهو من عائلة ميسورة الحال هو الان ينتضر الاعانة من الله اولا ثم من اخوانه الجزائريين لمزيد من المعلومات تجدونها في الصورة ادناه ان الله لا يضيع اجر المحسنين الخبوزية""".split(" ")
     #words =[u"من", u"فككم", u"لا"]
     for word in words:
         exists = speller.lookup(word)
         print word.encode("utf8"), exists
         if not exists:
+            if word == u'الميلع':
+                print "broken"
             suggests = speller.correct(word)
-            print "suggestions\n", word.encode('utf8'),u" ".join(suggests).encode('utf8')
+            print "0-الكلمات المحتملة\n", word.encode('utf8'),u" ".join(suggests).encode('utf8')
             if len(suggests) > 1:
                 autosuggest = speller.autocorrect(word, suggests)
                 if autosuggest:
-                    print "autocorrect\n", word.encode('utf8'),u" ".join(autosuggest).encode('utf8')        
+                    print "1-اقتراحات تصحيح آلي\n", word.encode('utf8'), ": " ,u", ".join(autosuggest).encode('utf8')
                 else:
-                    print "autocorrect\n", word.encode('utf8'), "No Autocorrect"
+                    print "2-اقتراحات تصحيح آلي\n", word.encode('utf8'), "لا يوجد"
+        print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
                     
 
 

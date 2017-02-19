@@ -21,9 +21,9 @@ sys.path.append("../../lib")
 import tashaphyne.stemming 
 
 LIMIT = 10000000
-#LIMIT = 1000
+#LIMIT = 1000000
 #FILENAME = 'arabicwordlist.txt'
-INPUT_FILENAME = '../data/Arabic-Wordlist-1.6/arabic-wordlist-1.6.txt'
+INPUT_FILENAME = '../data/Arabic-Wordlist-1.6/arabic-wordlist-1.5.txt'
 OUTPUT_FILE_AFFIX = "../output/arabic.aff"
 OUTPUT_FILE_WORDS = "../output/arabic.dic" 
 BASEDIGIT = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -119,7 +119,10 @@ def build_dict(inputfile = INPUT_FILENAME ,
         updatebigrams(word)
         # stemming the given word
         stemmer.segment(word)
-        # extract the affix 
+        # extract the affix
+        # print word, ":", ", س:", stemmer.get_prefix(), ", ل:", stemmer.get_suffix()
+
+
         affix = u"-".join([stemmer.get_prefix(),stemmer.get_suffix()])
         stem = stemmer.get_stem()
         if affix in affixdict:
@@ -127,9 +130,11 @@ def build_dict(inputfile = INPUT_FILENAME ,
         else:
             affixdict[affix] = [stem, ]
         line = myfile.readline().decode('utf8')
+        if line_nb % 100000 == 0 : print "At line: ", line_nb
         line_nb += 1
 
     # calculate stats for every affix 
+    print "calculate stats for every affix"
     # the number of stems used this affix
     affixcount = [ (aff, len(affixdict[aff])) for aff in affixdict.keys()]
     # this stats used to compress affix flags
