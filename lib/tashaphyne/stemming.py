@@ -26,7 +26,7 @@ import  re, sys
 sys.path.append('tashaphyne/lib/')
 import pyarabic.araby as araby
 
-import tashaphyne.normalize as normalize
+# import tashaphyne.normalize as normalize
 import tashaphyne.stem_const as stem_const
 
 
@@ -737,7 +737,7 @@ class ArabicLightStemmer:
         branch = self.suffixes_tree
         suffix = ''
         # rights = [len(word)-1, ]
-        rights = []        
+        rights = [len(word)]
         i = len(word)-1
         while i >= 0 and branch.has_key(word[i]):
             suffix = word[i]+suffix
